@@ -22,10 +22,11 @@ extractGOIDs <- function (enriched) {
 #' @import clusterProfiler goProfiles
 #' @examples
 #'  data(kidneyGeneLists)
+#'  data(humanEntrezIDs)
 #'  gl1 <-kidneyGeneLists[[1]]
 #'  anOnto <- 'BP'
-#'  # enriched <- enrichOnto (geneL=gl1, geneUniverse=geneUniverse, orgPackage='org.Hs.eg.db', onto=anOnto)
-#'  # GOIDs <- as.character(as.data.frame(enriched)$ID)
+#'  enriched <- enrichOnto (geneL=gl1, geneUniverse=humanEntrezIDs, orgPackage='org.Hs.eg.db', onto=anOnto)
+#'  GOIDs <- as.character(as.data.frame(enriched)$ID)
 #' @export
 enrichOnto <- function (geneList, 
                         geneUniverse, 
