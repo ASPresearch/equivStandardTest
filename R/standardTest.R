@@ -18,13 +18,13 @@ extractGOIDs <- function (enriched) {
 #' @param pAdjustMeth string describing the adjust method. Belongs to c('BH', 'BY', 'Bonf')
 #' @param pvalCutoff A numeric value
 #' @param qvalCutoff A numeric value
-#' @importFrom clusterProfiler enrichGO
+#' @import devtools
 #' @examples
-#' data(kidneyGeneLists)
-#' gl1 <-kidneyGeneLists[[1]]
-#' anOnto <- 'BP'
-#' enriched <- enrichOnto (geneL=gl1, geneUniverse=geneUniverse, orgPackage='org.Hs.eg.db', onto=anOnto)
-#' GOIDs <- as.character(as.data.frame(enriched)$ID)
+#'  # devtools::load_all()
+#'  #gl1 <-kidneyGeneLists[[1]]
+#'  #anOnto <- 'BP'
+#'  #enriched <- enrichOnto (geneL=gl1, geneUniverse=geneUniverse, orgPackage='org.Hs.eg.db', onto=anOnto)
+#'  #GOIDs <- as.character(as.data.frame(enriched)$ID)
 #' @export
 enrichOnto <- function (geneList, geneUniverse, orgPackage='org.Hs.eg.db', onto=c("BP", "MF", "CC"),
                          pAdjustMeth="BH", pvalCutoff=0.01, qvalCutoff=0.05) {
@@ -42,12 +42,12 @@ enrichOnto <- function (geneList, geneUniverse, orgPackage='org.Hs.eg.db', onto=
 #' @param onto string describing the ontology. Belongs to c('BP', 'MF', 'CC', 'ANY')
 #' @param GOLev An integer
 #' @examples
-#' data(kidneyEnrichedGOIDs)
-#' GOIDs1 <-kidneyEnrichedGOIDs[[1]]
-#' GOIDs2 <-kidneyEnrichedGOIDs[[2]]
-#' anOnto <- 'BP'
-#' GOLev<- 3
-#' testedFromGOIds <- stdTest4GOIDs (GO1 = GOIDs1, GO2 = GOIDs2, onto = anOnto, GOLevel =GOLev)
+#' # data(kidneyEnrichedGOIDs)
+#' # GOIDs1 <-kidneyEnrichedGOIDs[[1]]
+#' # GOIDs2 <-kidneyEnrichedGOIDs[[2]]
+#' # anOnto <- 'BP'
+#' # GOLev<- 3
+#' # testedFromGOIds <- stdTest4GOIDs (GO1 = GOIDs1, GO2 = GOIDs2, onto = anOnto, GOLevel =GOLev)
 #'@export
 stdTest4GOIDs <- function (GO1, GO2, onto, GOLevel, showTable=TRUE)
 {
@@ -71,19 +71,18 @@ stdTest4GOIDs <- function (GO1, GO2, onto, GOLevel, showTable=TRUE)
 #' @param pAdjustMeth string describing the adjust method. Belongs to c('BH', 'BY', 'Bonf')
 #' @param pvalCutoff A numeric value
 #' @param qvalCutoff A numeric value
-#' @importFrom clusterProfiler enrichGO
-#' data(kidneyGeneLists)
-#' data(humanEntrezIDs)
-#' gl1 <-kidneyGeneLists[[1]]
-#' gl2 <-kidneyGeneLists[[2]]
-#' anOnto <- 'BP'
-#' GOLev<- 3
-#' adjMeth<- 'BH'
-#' pValCut <- 0.05
-#' qValCut <- 0.01
-#' testedFromGeneLists <- stdTest4GeneLists (genelist1=gl1, genelist2=gl2, geneUniverse=humanEntrezIDs, orgPackg="org.Hs.eg.db", onto=anOnto, GOLevel=GOLev)
+#' # data(kidneyGeneLists)
+#' # data(humanEntrezIDs)
+#' # gl1 <-kidneyGeneLists[[1]]
+#' # gl2 <-kidneyGeneLists[[2]]
+#' # anOnto <- 'BP'
+#' # GOLev<- 3
+#' # adjMeth<- 'BH'
+#' # pValCut <- 0.05
+#' # qValCut <- 0.01
+#' # testedFromGeneLists <- stdTest4GeneLists (genelist1=gl1, genelist2=gl2, geneUniverse=humanEntrezIDs, orgPackg="org.Hs.eg.db", onto=anOnto, GOLevel=GOLev)
 #'
-#'@export
+#'@export 
 stdTest4GeneLists <- function (genelist1, genelist2, geneUniverse, orgPackg, onto, GOLevel,
                                pAdjustMeth="BH", pvalCutoff=0.01, qvalCutoff=0.05)
 {

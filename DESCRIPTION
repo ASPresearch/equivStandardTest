@@ -1,6 +1,5 @@
 Package: equivStandardTest
 Type: Package
-Imports: clusterProfiler
 Suggests: org.Hs.eg.db, hgu133plus2.db, goProfiles
 Title: Implements a standard test of equivalence as described in (Sanchez et alt. 2019)
 Version: 0.1.2
@@ -9,6 +8,10 @@ Maintainer: Alex Sanchez-Pla <asanchez@ub.edu>
 Description: Implements a standard test of equivalence as described in (Sanchez et alt. 2019)
     A cross tabulation of the enrihed terms corresponding to rtwo genbe lists is performed 
     And a Fisher test is computed to determine th epossivble equivalence
+Depends:
+    R (>= 3.0.0),
+    devtools
+biocViews: clusterProfiler,goProfiles
 License: GPL 2
 Encoding: UTF-8
 LazyData: false

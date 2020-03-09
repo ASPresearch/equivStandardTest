@@ -16,7 +16,17 @@ stdTest4GeneLists(genelist1, genelist2, geneUniverse, orgPackg, onto,
 
 \item{pvalCutoff}{A numeric value}
 
-\item{qvalCutoff}{A numeric value}
+\item{qvalCutoff}{A numeric value
+# data(kidneyGeneLists)
+# data(humanEntrezIDs)
+# gl1 <-kidneyGeneLists[[1]]
+# gl2 <-kidneyGeneLists[[2]]
+# anOnto <- 'BP'
+# GOLev<- 3
+# adjMeth<- 'BH'
+# pValCut <- 0.05
+# qValCut <- 0.01
+# testedFromGeneLists <- stdTest4GeneLists (genelist1=gl1, genelist2=gl2, geneUniverse=humanEntrezIDs, orgPackg="org.Hs.eg.db", onto=anOnto, GOLevel=GOLev)}
 
 \item{geneList1}{character vector containing a FIRST gene list of entrez IDs}
 

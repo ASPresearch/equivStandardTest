@@ -20,10 +20,10 @@ This function performs a "standard test" of equivalence between two lists of enr
 The lists are intended to have been obtained from enrichment analyses performed on two gene lists
 }
 \examples{
-data(kidneyEnrichedGOIDs)
-GOIDs1 <-kidneyEnrichedGOIDs[[1]]
-GOIDs2 <-kidneyEnrichedGOIDs[[2]]
-anOnto <- 'BP'
-GOLev<- 3
-testedFromGOIds <- stdTest4GOIDs (GO1 = GOIDs1, GO2 = GOIDs2, onto = anOnto, GOLevel =GOLev)
+# data(kidneyEnrichedGOIDs)
+# GOIDs1 <-kidneyEnrichedGOIDs[[1]]
+# GOIDs2 <-kidneyEnrichedGOIDs[[2]]
+# anOnto <- 'BP'
+# GOLev<- 3
+# testedFromGOIds <- stdTest4GOIDs (GO1 = GOIDs1, GO2 = GOIDs2, onto = anOnto, GOLevel =GOLev)
 }
