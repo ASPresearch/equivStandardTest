@@ -3,4 +3,6 @@
 export(enrichOnto)
 export(stdTest4GOIDs)
 export(stdTest4GeneLists)
+import(clusterProfiler)
 import(devtools)
+import(goProfiles)

@@ -10,7 +10,9 @@ Description: Implements a standard test of equivalence as described in (Sanchez 
     And a Fisher test is computed to determine th epossivble equivalence
 Depends:
     R (>= 3.0.0),
-    devtools
+    devtools,
+    goProfiles,
+    clusterProfiler
 biocViews: clusterProfiler,goProfiles
 License: GPL 2
 Encoding: UTF-8

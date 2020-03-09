@@ -7,11 +7,11 @@
 stdTest4GOIDs(GO1, GO2, onto, GOLevel, showTable = TRUE)
 }
 \arguments{
+\item{GO1}{character vector containing a FIRST list of GO identifiers}
+
+\item{GO2}{character vector containing a SECOND gene list GO identifiers}
+
 \item{onto}{string describing the ontology. Belongs to c('BP', 'MF', 'CC', 'ANY')}
-
-\item{GOIDs1}{character vector containing a FIRST list of GO identifiers}
-
-\item{GOIDs2}{character vector containing a SECOND gene list GO identifiers}
 
 \item{GOLev}{An integer}
 }
@@ -20,10 +20,11 @@ This function performs a "standard test" of equivalence between two lists of enr
 The lists are intended to have been obtained from enrichment analyses performed on two gene lists
 }
 \examples{
-# data(kidneyEnrichedGOIDs)
-# GOIDs1 <-kidneyEnrichedGOIDs[[1]]
-# GOIDs2 <-kidneyEnrichedGOIDs[[2]]
-# anOnto <- 'BP'
-# GOLev<- 3
-# testedFromGOIds <- stdTest4GOIDs (GO1 = GOIDs1, GO2 = GOIDs2, onto = anOnto, GOLevel =GOLev)
+ data(kidneyEnrichedGOIDs)
+ GOIDs1 <-kidneyEnrichedGOIDs[[1]]
+ GOIDs2 <-kidneyEnrichedGOIDs[[2]]
+ anOnto <- 'BP'
+ GOLev<- 3
+ testedFromGOIds <- stdTest4GOIDs (GO1 = GOIDs1, GO2 = GOIDs2, onto = anOnto, 
+ GOLevel =GOLev)
 }

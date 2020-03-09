@@ -27,9 +27,9 @@ enrichOnto(geneList, geneUniverse, orgPackage = "org.Hs.eg.db",
 This function performs a standard test of equivalence between two gene lists
 }
 \examples{
- # devtools::load_all()
- #gl1 <-kidneyGeneLists[[1]]
- #anOnto <- 'BP'
- #enriched <- enrichOnto (geneL=gl1, geneUniverse=geneUniverse, orgPackage='org.Hs.eg.db', onto=anOnto)
- #GOIDs <- as.character(as.data.frame(enriched)$ID)
+ data(kidneyGeneLists)
+ gl1 <-kidneyGeneLists[[1]]
+ anOnto <- 'BP'
+ # enriched <- enrichOnto (geneL=gl1, geneUniverse=geneUniverse, orgPackage='org.Hs.eg.db', onto=anOnto)
+ # GOIDs <- as.character(as.data.frame(enriched)$ID)
 }

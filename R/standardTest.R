@@ -19,15 +19,21 @@ extractGOIDs <- function (enriched) {
 #' @param pvalCutoff A numeric value
 #' @param qvalCutoff A numeric value
 #' @import devtools
+#' @import clusterProfiler goProfiles
 #' @examples
-#'  # devtools::load_all()
-#'  #gl1 <-kidneyGeneLists[[1]]
-#'  #anOnto <- 'BP'
-#'  #enriched <- enrichOnto (geneL=gl1, geneUniverse=geneUniverse, orgPackage='org.Hs.eg.db', onto=anOnto)
-#'  #GOIDs <- as.character(as.data.frame(enriched)$ID)
+#'  data(kidneyGeneLists)
+#'  gl1 <-kidneyGeneLists[[1]]
+#'  anOnto <- 'BP'
+#'  # enriched <- enrichOnto (geneL=gl1, geneUniverse=geneUniverse, orgPackage='org.Hs.eg.db', onto=anOnto)
+#'  # GOIDs <- as.character(as.data.frame(enriched)$ID)
 #' @export
-enrichOnto <- function (geneList, geneUniverse, orgPackage='org.Hs.eg.db', onto=c("BP", "MF", "CC"),
-                         pAdjustMeth="BH", pvalCutoff=0.01, qvalCutoff=0.05) {
+enrichOnto <- function (geneList, 
+                        geneUniverse, 
+                        orgPackage='org.Hs.eg.db', 
+                        onto=c("BP", "MF", "CC"),
+                         pAdjustMeth="BH", 
+                        pvalCutoff=0.01, 
+                        qvalCutoff=0.05) {
   clusterProfiler::enrichGO(gene = geneList, universe=geneUniverse, OrgDb =orgPackage, ont=onto,
            pAdjustMethod = pAdjustMeth, pvalueCutoff = pvalCutoff, qvalueCutoff = qvalCutoff, readable=TRUE)
 }
@@ -37,17 +43,18 @@ enrichOnto <- function (geneList, geneUniverse, orgPackage='org.Hs.eg.db', onto=
 #' This function performs a "standard test" of equivalence between two lists of enriched GOTerms
 #' The lists are intended to have been obtained from enrichment analyses performed on two gene lists
 #'
-#' @param GOIDs1 character vector containing a FIRST list of GO identifiers
-#' @param GOIDs2 character vector containing a SECOND gene list GO identifiers
+#' @param GO1 character vector containing a FIRST list of GO identifiers
+#' @param GO2 character vector containing a SECOND gene list GO identifiers
 #' @param onto string describing the ontology. Belongs to c('BP', 'MF', 'CC', 'ANY')
 #' @param GOLev An integer
 #' @examples
-#' # data(kidneyEnrichedGOIDs)
-#' # GOIDs1 <-kidneyEnrichedGOIDs[[1]]
-#' # GOIDs2 <-kidneyEnrichedGOIDs[[2]]
-#' # anOnto <- 'BP'
-#' # GOLev<- 3
-#' # testedFromGOIds <- stdTest4GOIDs (GO1 = GOIDs1, GO2 = GOIDs2, onto = anOnto, GOLevel =GOLev)
+#'  data(kidneyEnrichedGOIDs)
+#'  GOIDs1 <-kidneyEnrichedGOIDs[[1]]
+#'  GOIDs2 <-kidneyEnrichedGOIDs[[2]]
+#'  anOnto <- 'BP'
+#'  GOLev<- 3
+#'  testedFromGOIds <- stdTest4GOIDs (GO1 = GOIDs1, GO2 = GOIDs2, onto = anOnto, 
+#'  GOLevel =GOLev)
 #'@export
 stdTest4GOIDs <- function (GO1, GO2, onto, GOLevel, showTable=TRUE)
 {
@@ -71,16 +78,18 @@ stdTest4GOIDs <- function (GO1, GO2, onto, GOLevel, showTable=TRUE)
 #' @param pAdjustMeth string describing the adjust method. Belongs to c('BH', 'BY', 'Bonf')
 #' @param pvalCutoff A numeric value
 #' @param qvalCutoff A numeric value
-#' # data(kidneyGeneLists)
-#' # data(humanEntrezIDs)
-#' # gl1 <-kidneyGeneLists[[1]]
-#' # gl2 <-kidneyGeneLists[[2]]
-#' # anOnto <- 'BP'
-#' # GOLev<- 3
-#' # adjMeth<- 'BH'
-#' # pValCut <- 0.05
-#' # qValCut <- 0.01
-#' # testedFromGeneLists <- stdTest4GeneLists (genelist1=gl1, genelist2=gl2, geneUniverse=humanEntrezIDs, orgPackg="org.Hs.eg.db", onto=anOnto, GOLevel=GOLev)
+#' @examples
+#'  data(kidneyGeneLists)
+#'  data(humanEntrezIDs)
+#'  gl1 <-kidneyGeneLists[[1]]
+#'  gl2 <-kidneyGeneLists[[2]]
+#'  anOnto <- 'BP'
+#'  GOLev<- 3
+#'  adjMeth<- 'BH'
+#'  pValCut <- 0.05
+#'  qValCut <- 0.01
+#'  testedFromGeneLists <- stdTest4GeneLists (genelist1=gl1, genelist2=gl2,
+#'  geneUniverse=humanEntrezIDs, orgPackg="org.Hs.eg.db", onto=anOnto, GOLevel=GOLev)
 #'
 #'@export 
 stdTest4GeneLists <- function (genelist1, genelist2, geneUniverse, orgPackg, onto, GOLevel,
