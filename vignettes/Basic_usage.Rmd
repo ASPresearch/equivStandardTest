@@ -1,0 +1,168 @@
+---
+title: "A _standard_ test of equivalence"
+author: "Alex Sánchez, Jordi Ocaña and Miquel Salicrú"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{"A 'standard' test of equivalence"}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# An alternative approach
+
+One of the reviewers of the paper suggested that we should compare our equivalence test with an alternative approach. 
+
+The so-called, from now on, `standard test` between two gene lists at a given GO level of a given ontology consits of *checking if the percentage of enriched categories is similar in both lists using a Fisher test with unilateral alternative equaling "greater"*.
+
+The rationale for this tests seems to be that rejecting the null hypothesis of independence leads to establishing that both lists show some degree of relation -which is distinct but related to saying that bost lists are equivalent. 
+
+This test has been illustrated in the Supplementary materials of the paper (file `SupplementaryMaterials_2-StandardTest.Rmd`).
+
+In order to further investigate its properties it has been implemented in the current, `equivStandardTest`, package.
+
+## Basic analysis flow
+
+The rationale for the standard test is as follows:
+
+- Given two gene lists, say `gl1`and `gl2`
+- Perform an enrichment analysis to determine enriched GO categories in each list
+- Given a GO level select only the categories enriched in each list belonging at that level
+- Perform a Fisher test checking if the percentage of enriched categories is similar in both lists using a Fisher test with unilateral alternative equaling "greater"*
+- If the null hypotheis of independence is rejected  it can be established that both lists show some degree of relation -which is distinct but related to saying that bost lists are equivalent. 
+
+# Implementing the test
+
+- In order to facilitate its use a function, `stdTest4GeneLists` that takes two gene lists, an ontology and a GO level and returns the result of the test has been implemented.
+- Strictly speaking the standard test compares two GOTerms list, that is, it need not include the enrichment step. A second version of the test, `stdTest4GOIDs` has been implemented whose inputs are GOTerm lists instead of Gene lists.
+- Gene enrichment may be performed using a great variety of packages. We have chosen to implement a simple enrichment function which makes a call to `enrichGO` function from `clusterProfiler` package.
+
+## Testing from GO Terms lists
+
+The simplest version of the test is comparing directly two GO Terms lists.
+
+This can be done using function `standardTest4GOIDs`
+
+```{r}
+library(equivStandardTest)
+data(kidneyEnrichedGOIDs)
+GOIDs1 <-kidneyEnrichedGOIDs[[1]]
+GOIDs2 <-kidneyEnrichedGOIDs[[2]]
+anOnto <- 'BP'
+GOLev<- 3
+testedFromGOIds <- stdTest4GOIDs (GO1 = GOIDs1, GO2 = GOIDs2, onto = anOnto, GOLevel =GOLev)
+show(testedFromGOIds)
+```
+
+## Testing from Gene lists
+
+Conceptually, what we want to do is compare two gene lists.
+
+As it has been indicated above this is a two step process.
+- First, an enrichment analysis is performed on each gene list
+- Next the standard test is applied on the two GOTerms lists
+```{r eval=FALSE}
+data(kidneyGeneLists)
+data(humanEntrezIDs)
+gl1 <-kidneyGeneLists[[1]]
+gl2 <-kidneyGeneLists[[2]]
+anOnto <- 'BP'
+GOLev<- 3
+adjMeth<- 'BH'
+pValCut <- 0.05
+qValCut <- 0.01
+testedFromGeneLists <- stdTest4GeneLists (genelist1=gl1, genelist2=gl2, geneUniverse=humanEntrezIDs, orgPackg="org.Hs.eg.db", onto=anOnto, GOLevel=GOLev)
+print(testedFromGeneLists)
+```
+
+
+# Appendices 
+
+## Preparing the `data` for the examples
+
+The package includes three datasets that can be used to illustrate the usage of the functions implemented.
+This section illustrates how these datasets have been obtained.
+
+### Gene lists
+
+Gene lists in the `kidneyGeneLists` datasets have been directly obtained from the `goProfiles` package examples. Type ? `kidneyGeneLists` for more information.
+
+### Gene Universe
+
+Enrichment analysis requires a list of selected genes and a list of "all genes" from where the former has been selected. Many researchers claim that the ideal gene universe is the set of genes that where tested for differential expression and from where the gene list was selected. 
+
+In many situations however this is unknown so that some standard set of "all genes" is used. In this dataset we have included two distinct gene universe:
+
+- All the genes in the arrays from where the genes in kidney gene lists where selected (type `hgu133plus2`). 
+- All the genes officially annotated in Bioconductor package `org.Hs.eg.db`
+
+Interestingly the first datset contains around 22000 genes while the second contains more than 62.000. 
+The results of doing an enrichment analysis using one or other as gene universe are not very different.
+
+```{r prepareGeneUniverse, eval=FALSE}
+data(kidneyGeneLists)
+sapply(kidneyGeneLists, length)
+library(org.Hs.eg.db)
+entrezs <-keys(org.Hs.eg.db)
+geneUniverseTable <- select(org.Hs.eg.db, keys=entrezs, columns=c("ENTREZID", "SYMBOL"))
+humanEntrezIDs <- as.character(unique(geneUniverseTable$ENTREZID))
+library(hgu133plus2.db)
+probes<-keys(hgu133plus2.db)
+geneUniverseTable2 <- select(hgu133plus2.db, keys=probes, columns=c("PROBEID", "ENTREZID", "SYMBOL"))
+hgu133plus2EntrezIDs <- as.character(unique(geneUniverseTable2$ENTREZID))
+length(intersect(hgu133plus2.EntrezIDs, org.Hs.eg.EntrezIDs))
+save(hgu133plus2EntrezIDs, file="data/hgu133plus2EntrezIDs.Rda", version=2)
+save(humanEntrezIDs, file="data/humanEntrezIDs.Rda", version=2)
+```
+
+### GO Terms lists
+
+The standard test compares two lists of GO Terms corresponding to two gene lists. An enrichment analysis has been performed on each gene list to obtain these GO Terms lists with predefined thresholds.
+
+Enrichment analysis an important procedure in bioinformatics and, for the sake of brevity, it is not described here. A thorough explanation of both, concept and usage, can be found in `clusterProfiler` manual.
+
+```{r prepareGOTerms, eval=FALSE}
+#' CODE TO GENERATE THE DATA USED IN THE EXAMPLES
+data(humanEntrezIDs)
+geneUniverse <- humanEntrezIDs
+anOnto <- 'BP'
+adjMeth<- 'BH'
+pValCut <- 0.05
+qValCut <- 0.01
+kidneyEnriched <- sapply(kidneyGeneLists,
+                         function (g)
+                         clusterProfiler::enrichGO(gene=g,universe=geneUniverse, OrgDb='org.Hs.eg.db', ont=anOnto, pvalueCutoff=pValCut))
+kidneyEnrichedGOIDs <- sapply (kidneyEnriched,
+                         function (enrich) as.character(as.data.frame(enrich)$ID))
+sapply (kidneyEnrichedGOIDs, length)
+save(kidneyEnrichedGOIDs, file="data/kidneyEnrichedGOIDs.Rda", version=2)
+```
+
+It is important to remember that the concept of "Gene Universe" is not well defined. Changing from all human genes, available in package `org.Hs.eg.db` to all genes in the used array `hgu133plus2.db` yield a different number of enriched GO categories.
+
+```{r r prepareGOTerms2, eval=FALSE}
+data(hgu133plus2EntrezIDS)
+kidneyEnriched2 <- sapply(kidneyGeneLists,
+                         function (g)
+                         clusterProfiler::enrichGO(gene=g,
+                                                   universe=geneUniverse2,
+                                                   OrgDb='hgu133plus2.db',
+                                                   ont=anOnto,
+                                                   pvalueCutoff=pValCut))
+kidneyEnrichedGOIDs2 <- sapply (kidneyEnriched2,
+                         function (enrich) as.character(as.data.frame(enrich)$ID))
+sapply (kidneyEnrichedGOIDs2, length)
+for (i in 1:5 ) cat (names(kidneyEnrichedGOIDs2)[i],", ",
+                     length(intersect(kidneyEnrichedGOIDs[[i]], kidneyEnrichedGOIDs2[[i]])), "\n")
+```
+
+
