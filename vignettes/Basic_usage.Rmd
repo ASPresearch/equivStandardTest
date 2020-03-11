@@ -3,6 +3,7 @@ title: "A _standard_ test of equivalence"
 author: "Alex Sánchez, Jordi Ocaña and Miquel Salicrú"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
+bibliography: GeneListsEquivalence.bib
 vignette: >
   %\VignetteIndexEntry{"A 'standard' test of equivalence"}
   %\VignetteEncoding{UTF-8}
@@ -20,9 +21,10 @@ knitr::opts_chunk$set(
 
 # An alternative approach
 
-One of the reviewers of the paper suggested that we should compare our equivalence test with an alternative approach. 
+In a recent paper (@SanchezPla2019) we extended tyhe goProfiles method (@AlexSanchez2017) to allow it to be used for the equivalence analysis of multiple gene lists.
 
-The so-called, from now on, `standard test` between two gene lists at a given GO level of a given ontology consits of *checking if the percentage of enriched categories is similar in both lists using a Fisher test with unilateral alternative equaling "greater"*.
+One of the reviewers of the paper suggested that we should compare our equivalence test with an alternative approach. 
+This, so-called from now on, `standard test` between two gene lists at a given GO level of a given ontology, consitss of *checking if the percentage of enriched categories is similar in both lists using a Fisher test with unilateral alternative equaling "greater"*.
 
 The rationale for this tests seems to be that rejecting the null hypothesis of independence leads to establishing that both lists show some degree of relation -which is distinct but related to saying that bost lists are equivalent. 
 
@@ -44,7 +46,7 @@ The rationale for the standard test is as follows:
 
 - In order to facilitate its use a function, `stdTest4GeneLists` that takes two gene lists, an ontology and a GO level and returns the result of the test has been implemented.
 - Strictly speaking the standard test compares two GOTerms list, that is, it need not include the enrichment step. A second version of the test, `stdTest4GOIDs` has been implemented whose inputs are GOTerm lists instead of Gene lists.
-- Gene enrichment may be performed using a great variety of packages. We have chosen to implement a simple enrichment function which makes a call to `enrichGO` function from `clusterProfiler` package.
+- Gene enrichment may be performed using a great variety of packages. We have chosen to implement a simple enrichment function which makes a call to `enrichGO` function from `clusterProfiler` package (@Yu2012).
 
 ## Testing from GO Terms lists
 
@@ -164,5 +166,7 @@ sapply (kidneyEnrichedGOIDs2, length)
 for (i in 1:5 ) cat (names(kidneyEnrichedGOIDs2)[i],", ",
                      length(intersect(kidneyEnrichedGOIDs[[i]], kidneyEnrichedGOIDs2[[i]])), "\n")
 ```
+
+# References
 
 
