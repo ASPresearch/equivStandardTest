@@ -107,13 +107,17 @@ adjMeth<- 'BH'
 pValCut <- 0.05
 qValCut <- 0.01
 crossTabUnrestricted <- crossTabGOIDs4GeneLists (genelist1=gl1, genelist2=gl2,
-                                                 geneUniverse=humanEntrezIDs, orgPackg="org.Hs.eg.db",
-                                                 onto=anOnto, GOLevel=GOLev, restricted=restricted)
+                                                 geneUniverse=humanEntrezIDs,
+                                                 orgPackg="org.Hs.eg.db",
+                                                 onto=anOnto, GOLevel=GOLev,
+                                                 restricted=restricted)
 show(crossTabUnrestricted)
 restricted <- TRUE
 crossTabRestricted <- crossTabGOIDs4GeneLists (genelist1=gl1, genelist2=gl2,
-                                               geneUniverse=humanEntrezIDs, orgPackg="org.Hs.eg.db",
-                                               onto=anOnto, GOLevel=GOLev, restricted=restricted)
+                                               geneUniverse=humanEntrezIDs,
+                                               orgPackg="org.Hs.eg.db",
+                                               onto=anOnto, GOLevel=GOLev,
+                                               restricted=restricted)
 show(crossTabRestricted)
 ```
 
@@ -201,19 +205,25 @@ Notice that there are two type of annotations for a gene. The "most specific" ar
 
 ```{r}
 library(org.Hs.eg.db)
+library(GO.db)
 shortList <- geneList1[1:3]
 (select(org.Hs.eg.db, shortList,"GENENAME"))
-(listOfGOTerms1<-  GOTermsList(shortList, "BP", orgPkg = "org.Hs.eg.db"))
+(listOfGOTerms1<- goProfiles::GOTermsList(shortList, "BP", orgPkg = "org.Hs.eg.db"))
 (select(GO.db, unlist(listOfGOTerms1), "TERM"))
 ```
 It can be seen, even with  a low knowledge of Biology, how some of the GOTerms description match the name of the gene.
 
 Alternatively, the GOTerms can be extracted using standard database queries
 ```{r}
-(dfOfGOTerms<- select(org.Hs.eg.db, shortList,"GO"))
-(listOfGOTerms2 <- dfOfGOTerms %>%
-  dplyr::filter(dfOfGOTerms$ONTOLOGY=="BP") %>%
-  dplyr::select ("GO"))
+dfOfGOTerms<- select(org.Hs.eg.db, shortList,"GO")
+listOfGOTerms2 <-dfOfGOTerms [dfOfGOTerms$ONTOLOGY=="BP","GO"] 
+#
+# A tidy approach
+# library (dplyr)
+# (listOfGOTerms2 <- dfOfGOTerms %>%
+#  dplyr::filter(dfOfGOTerms$ONTOLOGY=="BP") %>%
+#  dplyr::select ("GO"))
+#
 ```
 
 The GOTerms retrieved for this gene are the most specific terms. Due to the hierarchichal structur of the GO the gene is also annotated by terms in higher positions of the ontology related with these "most specific" terms.
@@ -232,34 +242,40 @@ Using a direct `select` command on the annotations package to a different table 
 ```{r}
 # Making a direct query
 dfOfGOTerms2<- select(org.Hs.eg.db, shortList,"GOALL")
-listOfGOTerms2 <- dfOfGOTerms2 %>%
-  dplyr::filter(dfOfGOTerms2$ONTOLOGYALL=="BP") %>%
-  dplyr::select ("GOALL")
-length(unique(listOfGOTerms2[,1]))
+listOfGOTerms2 <-dfOfGOTerms2 [dfOfGOTerms2$ONTOLOGY=="BP","GOALL"]
+# A tidy approach
+# listOfGOTerms2 <- dfOfGOTerms2 %>%
+#   dplyr::filter(dfOfGOTerms2$ONTOLOGYALL=="BP") %>%
+#   dplyr::select ("GOALL")
+length(unique(listOfGOTerms2))
 ```
 __Notice that the results are similar though not the same__
 
 ```{r}
 length(ancestorsList1)
-length(unique(listOfGOTerms2[,1]))
-setdiff(ancestorsList1, listOfGOTerms2[,1])
+length(unique(listOfGOTerms2))
+setdiff(ancestorsList1, listOfGOTerms2)
 ```
 
 It is clear that, even for a short gene list, the number of associated GOTerms is very high especially if one considers general and specific terms.
 
 This can be seen by considering the "induced GO graphs"
 
-```{r eval=FALSE}
+```{r eval=TRUE}
 library(GOstats)
-graphBP1<-makeGOGraph(shortList,"BP", chip="hgu133plus2.db")
+graphBP1<-GOstats::makeGOGraph(shortList,"BP", chip="hgu133plus2.db")
 length(nodes(graphBP1))
 ```
 
-```{r plotGOGraph1, out.width = '70%', eval=FALSE}
+```{r plotGOGraph1, out.width = '70%', eval=TRUE}
 plot(graphBP1, main=paste(paste(shortList, collapse = ", "), "BP Ontology"))
 ```
 
-<!-- Notice that _this graph has been produced using only three genes but contains 212 nodes, precisely all that have been obtained querying the database for all GO Terms associated with the short gene list_. -->
+```{r eval = FALSE}
+![induced GO Graph]("vignettes/graphBP1.png")
+```
+
+Notice that _this graph has been produced using only three genes but contains 212 nodes, precisely all that have been obtained querying the database for all GO Terms associated with the short gene list_.
 
 ### GO levels
 
