@@ -12,9 +12,10 @@ Depends:
     R (>= 3.0.0),
     devtools,
     goProfiles,
-    clusterProfiler
+    clusterProfiler,
+    org.Hs.eg.db
 biocViews: clusterProfiler,goProfiles
 License: GPL 2
 Encoding: UTF-8
 LazyData: false
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.0

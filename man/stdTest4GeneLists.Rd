@@ -4,8 +4,18 @@
 \alias{stdTest4GeneLists}
 \title{StandardTest4GeneLists}
 \usage{
-stdTest4GeneLists(genelist1, genelist2, geneUniverse, orgPackg, onto,
-  GOLevel, pAdjustMeth = "BH", pvalCutoff = 0.01, qvalCutoff = 0.05)
+stdTest4GeneLists(
+  genelist1,
+  genelist2,
+  geneUniverse,
+  orgPackg,
+  onto,
+  GOLevel,
+  restricted = FALSE,
+  pAdjustMeth = "BH",
+  pvalCutoff = 0.01,
+  qvalCutoff = 0.05
+)
 }
 \arguments{
 \item{geneUniverse}{character vector containing all genes from where geneLists have been extracted}
@@ -36,6 +46,7 @@ This function performs a "standard test" of equivalence between two gene lists
  gl2 <-kidneyGeneLists[[2]]
  anOnto <- 'BP'
  GOLev<- 3
+ restricted = FALSE
  adjMeth<- 'BH'
  pValCut <- 0.05
  qValCut <- 0.01

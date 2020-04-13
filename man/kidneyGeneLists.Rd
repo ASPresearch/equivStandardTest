@@ -4,7 +4,9 @@
 \name{kidneyGeneLists}
 \alias{kidneyGeneLists}
 \title{Gene lists derived from studies on kidney transplantation rejection}
-\format{An object of class \code{list} of length 5.}
+\format{
+An object of class \code{list} of length 5.
+}
 \source{
 \url{https://www.ualberta.ca/medicine/institutes-centres-groups/atagc/research/gene-lists}
 }

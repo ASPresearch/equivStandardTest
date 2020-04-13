@@ -4,9 +4,15 @@
 \alias{enrichOnto}
 \title{enrichOnto}
 \usage{
-enrichOnto(geneList, geneUniverse, orgPackage = "org.Hs.eg.db",
-  onto = c("BP", "MF", "CC"), pAdjustMeth = "BH", pvalCutoff = 0.01,
-  qvalCutoff = 0.05)
+enrichOnto(
+  geneList,
+  geneUniverse,
+  orgPackage = "org.Hs.eg.db",
+  onto = c("BP", "MF", "CC"),
+  pAdjustMeth = "BH",
+  pvalCutoff = 0.01,
+  qvalCutoff = 0.05
+)
 }
 \arguments{
 \item{geneList}{character vector containing a FIRST gene list of entrez IDs}

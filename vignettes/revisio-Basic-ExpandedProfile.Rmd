@@ -1,0 +1,185 @@
+---
+title: "Revisio del funcionament de `basicProfile` i `expandedProfile`"
+author: "Alex Sanchez"
+output:
+html_document:
+  toc: yes
+---
+
+```{r setup, include=FALSE}
+require(knitr)
+# include this code chunk as-is to set options
+opts_chunk$set(comment = NA, prompt = TRUE, tidy = FALSE, fig.width = 7, fig.height = 7,echo = FALSE, message = FALSE, warning = FALSE, cache=FALSE)
+Sys.setlocale("LC_TIME", "C")
+```
+
+```{r}
+installifnot <- function(pckgName){
+  if (!(require(pckgName, character.only = TRUE))) {
+    install.packages(pckgName)
+  }else{
+    print(paste("Package", pckgName, "already installed", sep = " "))
+  } 
+}
+
+installBioCifnot <- function(pckgName){
+  if (!(require(pckgName, character.only = TRUE))) {
+    source("http://bioconductor.org/biocLite.R")
+    biocLite(pckgName)
+  }else{
+    print(paste("Package", pckgName, "already installed", sep = " "))
+  } 
+}
+
+if(!(require(printr))) {
+  install.packages(
+    'printr',
+    type = 'source',
+    repos = c('http://yihui.name/xran', 'http://cran.rstudio.com')
+  )
+}
+
+installBioCifnot("annotate")
+installBioCifnot("hgu133plus2.db")
+installBioCifnot("goProfiles")
+installBioCifnot("org.Hs.eg.db")
+installBioCifnot("GOstats")
+# require(devtools)
+# install_git("https://github.com/alexsanchezpla/goProfiles-devel", "goProfiles")
+```
+
+# Introducció
+
+En alguns exemples recents hem detectat algun problema al calcular perfils per un sol gen. L'objectiu d'aquesta revisió es determinar si hi ha algun error i resoldre'l.
+
+Em basaré en els perfils fets a ma que faig servir en els exemples que poso en alguna xerrada, tot i que al haver evolucionat la Gene Ontology hi ha coses que ja no son com a l'exemple.
+
+L'exemple mostra els perfils fets per als gens: "FANCG", "PKIA", "PRKAR1B". 
+
+
+## Anotacions GO dels gens
+
+En la versió actual de Bioconductor les anotacions es magatzemen/recuperen de taules SQL.
+
+```{r}
+gens3 <- c("FANCG", "PKIA", "PRKAR1B")
+gens1<-gens3[1]
+gens2 <- gens3[1:2]
+
+# Recuperem els IDs Entrezs
+require(annotate)
+require(org.Hs.eg.db)
+# columns(org.Hs.eg.db)
+# keytypes(org.Hs.eg.db)
+
+info3<- select(org.Hs.eg.db, keys=gens3, 
+                  columns = c("ENTREZID", "SYMBOL","GO"),
+                  keytype="SYMBOL")
+(info3.MF   <-info3[info3[,"ONTOLOGY"]=="MF",])
+```
+
+```{r}
+table(info3$SYMBOL, info3$ONTOLOGY )
+```
+
+__Hi ha alguna cosa nova en el llistat de les anotacions:__
+
+Observem que algun gen com FANCG té dues anotacions diferents, i per tant al perfil hauria de sortir un 1 a cada categoria,
+
+```{r}
+(info3FANCG.MF   <-info3[info3[,"ONTOLOGY"]=="MF" & info3[, "SYMBOL"]=="FANCG",])
+```
+
+Altres com PKIA, que en té quatre te quatre anotacions pero només tres de diferents. 
+
+```{r}
+(info3PKIA.MF   <-info3[info3[,"ONTOLOGY"]=="MF" & info3[, "SYMBOL"]=="PKIA",])
+```
+
+Com hauria de ser doncs el seu perfil?
+
+Comencem extraient els identificadors entrez dels tres gens:
+
+```{r}
+(entrezs3 <- unique(info3[,"ENTREZID"]))
+(symbols3 <- unique(info3[,"SYMBOL"]))
+(entrez1 <- entrezs3[1]); (symbol1 <- symbols3[1])
+(entrez2 <- entrezs3[2]); (symbol2 <- symbols3[2])
+(entrez3 <- entrezs3[3]); (symbol3 <- symbols3[3])
+(entrez12 <- entrezs3[1:2]); (symbol12 <- symbols3[1:2])
+```
+
+## Comparem els grafs induits pels gens
+
+![GOGrafs i perfils per 3 gens (versio de la GO al 2007)](figure/threGenes.jpg)
+
+Els grafs associats a cada gen es troben a l'arxiu `MFGOGraph_FANCG_PRKAR1B_PKIA.pdf`. 
+
+Si comparem el graf inicial amb els actuals hi trobarem una certa retirada, pero amb més complexitat.
+
+```{r}
+require(GOstats)
+graphMF1<-makeGOGraph(entrez1,"MF", chip="hgu133plus2.db")
+graphMF2<-makeGOGraph(entrez2,"MF", chip="hgu133plus2.db")
+graphMF3<-makeGOGraph(entrez3,"MF", chip="hgu133plus2.db")
+graphMF12<-makeGOGraph(entrez12,"MF", chip="hgu133plus2.db")
+graphMF123<-makeGOGraph(entrezs3,"MF", chip="hgu133plus2.db")
+```
+
+```{r}
+pdf("MFGOGraph_FANCG_PRKAR1B_PKIA.pdf")
+plot(graphMF1, main=paste(symbol1, entrez1, "MF Ontology"))
+plot(graphMF2, main=paste(symbol2, entrez2, "MF Ontology"))
+plot(graphMF3, main=paste(symbol3,entrez3, "MF Ontology"))
+plot(graphMF12, main=paste(symbol1,symbol2, entrez1, entrez2,"MF Ontology"))
+plot(graphMF123, main=paste(symbols3, entrezs3, "MF Ontology"))
+dev.off()
+plot(graphMF1, main=paste(symbol1, entrez1, "MF Ontology"))
+```
+
+## Obtenció de perfils individuals
+
+Podem construir els perfils gen a gen i per al grup de tres gens, aquests a nivell 2 i nivell 3. 
+
+Observant els grafs fets a l'apartat anterior es immediat deduir "manualment"" quins serien els perfils d'aquests gens.
+
+```{r}
+require(goProfiles)
+basic.MF.1 <- basicProfile (entrez1, onto="MF", level=2, orgPackage="org.Hs.eg.db")
+expanded.MF.1 <- expandedProfile(entrez1, onto="MF", level=2, orgPackage="org.Hs.eg.db", na.rm=FALSE, percentage=FALSE)
+
+basic.MF.2 <- basicProfile (entrez2, onto="MF", level=2, orgPackage="org.Hs.eg.db")
+expanded.MF.2 <- expandedProfile(entrez2, onto="MF", level=2, orgPackage="org.Hs.eg.db", na.rm=FALSE, percentage=FALSE)
+
+basic.MF.3 <- basicProfile (entrez3, onto="MF", level=2, orgPackage="org.Hs.eg.db")
+expanded.MF.3 <- expandedProfile(entrez3, onto="MF", level=2, orgPackage="org.Hs.eg.db", na.rm=FALSE, percentage=FALSE)
+
+basic.MF.123L2 <- basicProfile (entrezs3, onto="MF", level=2, orgPackage="org.Hs.eg.db")
+expanded.MF.123L2 <- expandedProfile(entrezs3, onto="MF", level=2, orgPackage="org.Hs.eg.db", na.rm=FALSE, percentage=FALSE)
+
+basic.MF.123L3 <- basicProfile (entrezs3, onto="MF", level=3, orgPackage="org.Hs.eg.db")
+expanded.MF.123L3 <- expandedProfile(entrezs3, onto="MF", level=3, orgPackage="org.Hs.eg.db", na.rm=FALSE, percentage=FALSE)
+```
+
+```{r}
+printProfiles(basic.MF.1, percentage=FALSE)
+printProfiles(basic.MF.2, percentage=FALSE)
+printProfiles(basic.MF.3, percentage=FALSE)
+printProfiles(basic.MF.123L2, percentage=FALSE)
+printProfiles(basic.MF.123L3, percentage=FALSE)
+
+expanded.MF.1
+expanded.MF.2
+expanded.MF.3
+expanded.MF.123L2
+expanded.MF.123L3
+```
+
+El resultat és sorprenent.
+
+Si comparem els perfils obtinguts pel programa amb els perfils fets manualment (no es mostren aquí, encara) podem comprovar que:
+
+-Els perfils coincideixen quan el nombre de gens és superior a 1
+-Els perfils són diferents quan es basen només en un gen
+
+

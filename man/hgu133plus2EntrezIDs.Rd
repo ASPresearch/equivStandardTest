@@ -4,7 +4,9 @@
 \name{hgu133plus2EntrezIDs}
 \alias{hgu133plus2EntrezIDs}
 \title{Entrez Identifiers for all human genes contained in the hgu133plus2.db package.}
-\format{An object of class \code{character} of length 22013.}
+\format{
+An object of class \code{character} of length 22013.
+}
 \source{
 \url{http://bioconductor.org}
 }

@@ -4,8 +4,18 @@
 \alias{crossTabGOIDs4GeneLists}
 \title{crossTab4GeneLists}
 \usage{
-crossTabGOIDs4GeneLists(genelist1, genelist2, geneUniverse, orgPackg, onto,
-  GOLevel, pAdjustMeth = "BH", pvalCutoff = 0.01, qvalCutoff = 0.05)
+crossTabGOIDs4GeneLists(
+  genelist1,
+  genelist2,
+  geneUniverse,
+  orgPackg,
+  onto,
+  GOLevel,
+  restricted = FALSE,
+  pAdjustMeth = "BH",
+  pvalCutoff = 0.01,
+  qvalCutoff = 0.05
+)
 }
 \arguments{
 \item{geneUniverse}{character vector containing all genes from where geneLists have been extracted}
@@ -36,10 +46,13 @@ This function performs a "standard test" of equivalence between two gene lists
  gl2 <-kidneyGeneLists[[2]]
  anOnto <- 'BP'
  GOLev<- 3
+ restricted <- FALSE
  adjMeth<- 'BH'
  pValCut <- 0.05
  qValCut <- 0.01
- crossTabFromGeneLists <- crossTab4GeneLists (genelist1=gl1, genelist2=gl2,
- geneUniverse=humanEntrezIDs, orgPackg="org.Hs.eg.db", onto=anOnto, GOLevel=GOLev)
-
+ crossTabFromGeneListsUnrestricted <- crossTabGOIDs4GeneLists (genelist1=gl1, genelist2=gl2,
+ geneUniverse=humanEntrezIDs, orgPackg="org.Hs.eg.db", onto=anOnto, GOLevel=GOLev, restricted=restricted)
+ restricted <- TRUE
+ crossTabFromGeneListsRestricted <- crossTabGOIDs4GeneLists (genelist1=gl1, genelist2=gl2,
+ geneUniverse=humanEntrezIDs, orgPackg="org.Hs.eg.db", onto=anOnto, GOLevel=GOLev, restricted=restricted)
 }

@@ -2,7 +2,9 @@
 title: "A _standard_ test of equivalence"
 author: "Alex Sánchez, Jordi Ocaña and Miquel Salicrú"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output:
+  rmarkdown::html_vignette:
+    toc: true
 bibliography: GeneListsEquivalence.bib
 vignette: >
   %\VignetteIndexEntry{"A 'standard' test of equivalence"}
@@ -15,7 +17,9 @@ editor_options:
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  message=FALSE, 
+  warning=FALSE
 )
 ```
 
@@ -56,22 +60,27 @@ The rationale for the standard test is as follows:
 
 Lists of enriched GO Terms can be obtained from Gene Lists through enrichment analysis. Notice that there are many methods in the literature. We have implemented a few of them and it is interesting to see how the results differ (or ressemble depending on what part of the glass you prefer).
 
-We have named the methods according to the package
+For the sake of velocity in compiling the vignette enrichment analysis is not performed but, instead, precomputed lists of enriched GOTerms (see appoendix 2) are used.
+
 ```{r enrichment1}
 library(equivStandardTest)
 data(kidneyGeneLists)
 data(humanEntrezIDs)
+data(kidneyEnrichedGOIDs)
 gl1 <-kidneyGeneLists[[1]]
 gl2 <-kidneyGeneLists[[2]]
 geneUniverse<- humanEntrezIDs
 anOnto<- "BP"
 pvalCutoff <- 0.01
-enriched1 <- enrichOnto(geneList=gl1, geneUniverse=geneUniverse, orgPackage="org.Hs.eg.db",
-                        ont=anOnto)
-GOIDs1 <- as.character(as.data.frame(enriched1)$ID)
-enriched2 <- enrichOnto(geneList=gl2, geneUniverse=geneUniverse, orgPackage="org.Hs.eg.db",
-                        ont=anOnto)
-GOIDs2 <- as.character(as.data.frame(enriched2)$ID)
+# enriched1 <- enrichOnto(geneList=gl1, geneUniverse=geneUniverse, 
+#                         orgPackage="org.Hs.eg.db",
+#                         ont=anOnto)
+# GOIDs1 <- as.character(as.data.frame(enriched1)$ID)
+GOIDs1<- kidneyEnrichedGOIDs[[1]]
+# enriched2 <- enrichOnto(geneList=gl2, geneUniverse=geneUniverse, orgPackage="org.Hs.eg.db",
+#                         ont=anOnto)
+# GOIDs2 <- as.character(as.data.frame(enriched2)$ID)
+GOIDs2<- kidneyEnrichedGOIDs[[2]]
 GOLev<- 3
 names4lists<- names(kidneyGeneLists)[1:2]
 crossTabbedGOIds <- crossTabGOIDs (GO1 = GOIDs1, GO2 = GOIDs2, onto = anOnto, 
@@ -79,22 +88,34 @@ crossTabbedGOIds <- crossTabGOIDs (GO1 = GOIDs1, GO2 = GOIDs2, onto = anOnto,
 show(crossTabbedGOIds)
 ```
 
-If we change, for  instance the `gene Universe` from all human genes (as in the example above) to "human genes available in arrays hgu133plus2" the results show a slight change
+## Restricted vs unrestricted cross-tabulation
+
+When considering cross-tabulation as in the previous paragraph an interesting issue appears: It is reasonable to expect that many GO Terms in the selected level don't appear in the annotations of neither genelist 1 nor genelist 2. THis means that it will be impossible that they are enriched, and, in consequence, they will "inflate" the FALSE-FALSE cell in the cross tabulation.
+This has been solved introducing a boolean variable, called  `restricted` to decide how tabulation is performed. 
+- If it is FALSE "unrestricted" cross-tabulation is performed as above, crossing _all_ GO Terms located at the level indicated by `GOLev` with the two GOIDs lists.
+- If it is TRUE "restricted" cross-tabulation is performed and only terms from the selected GO level that are _common to ancestor terms of either list_ are crossed. That is, if one term in the selected GO level is not an ancestor of at least one of the gene list most specific GO terms it is excluded from the GO Level's terms because it is impossible that it appears as being enriched.
 
 ```{r}
-data("hgu133plus2EntrezIDs")
-geneUniverse2<- hgu133plus2EntrezIDs
-enriched1 <- enrichOnto(geneList=gl1, geneUniverse=geneUniverse2,
-                        orgPackage="org.Hs.eg.db", ont=anOnto)
-GOIDs1.2 <- as.character(as.data.frame(enriched1)$ID)
-enriched2 <- enrichOnto(geneList=gl2, geneUniverse=geneUniverse2,
-                        orgPackage="org.Hs.eg.db", ont=anOnto)
-GOIDs2.2 <- as.character(as.data.frame(enriched2)$ID)
-crossTabbedGOIds.2 <- crossTabGOIDs (GO1 = GOIDs1.2, GO2 = GOIDs2.2, onto = anOnto, 
-                                   GOLevel =GOLev, listNames=names4lists)
-show(crossTabbedGOIds.2)
+data(kidneyGeneLists)
+data(humanEntrezIDs)
+gl1 <-kidneyGeneLists[[1]]
+gl2 <-kidneyGeneLists[[2]]
+anOnto <- 'BP'
+GOLev<- 3
+restricted <- FALSE
+adjMeth<- 'BH'
+pValCut <- 0.05
+qValCut <- 0.01
+crossTabUnrestricted <- crossTabGOIDs4GeneLists (genelist1=gl1, genelist2=gl2,
+                                                 geneUniverse=humanEntrezIDs, orgPackg="org.Hs.eg.db",
+                                                 onto=anOnto, GOLevel=GOLev, restricted=restricted)
+show(crossTabUnrestricted)
+restricted <- TRUE
+crossTabRestricted <- crossTabGOIDs4GeneLists (genelist1=gl1, genelist2=gl2,
+                                               geneUniverse=humanEntrezIDs, orgPackg="org.Hs.eg.db",
+                                               onto=anOnto, GOLevel=GOLev, restricted=restricted)
+show(crossTabRestricted)
 ```
-
 
 
 ## Testing from GO Terms lists
@@ -118,10 +139,12 @@ show(testedFromGOIds)
 
 Conceptually, what we want to do is compare two gene lists.
 
-As it has been indicated above this is a two step process.
+As it has been indicated above this is a three step process.
 - First, an enrichment analysis is performed on each gene list
-- Next the standard test is applied on the two GOTerms lists
-```{r eval=FALSE}
+- Then crosstabulation applied on the two enriched GO Terms lists vs the GO Terms in the selected level in an unrestricted or restricted approach.
+- Final a Fisher test is applied on the resulting table
+
+```{r}
 data(kidneyGeneLists)
 data(humanEntrezIDs)
 gl1 <-kidneyGeneLists[[1]]
@@ -132,11 +155,221 @@ adjMeth<- 'BH'
 pValCut <- 0.05
 qValCut <- 0.01
 testedFromGeneLists <- stdTest4GeneLists (genelist1=gl1, genelist2=gl2, geneUniverse=humanEntrezIDs, orgPackg="org.Hs.eg.db", onto=anOnto, GOLevel=GOLev)
-print(testedFromGeneLists)
+show(testedFromGeneLists)
+```
+
+By default the test is applied doing "unrestricted" tabulation, but it can also be done on the unrestricted tabulation simply setting the "restricted" parameter to TRUE.
+
+```{r}
+testedFromGeneListsRest <- stdTest4GeneLists (genelist1=gl1, genelist2=gl2, geneUniverse=humanEntrezIDs,
+                                              orgPackg="org.Hs.eg.db", onto=anOnto, GOLevel=GOLev,
+                                              restricted = TRUE)
+show(testedFromGeneListsRest)
+```
+
+The results differ although the conclusion is almost the same.
+
+# Appendices 
+
+## Understanding the concepts we work with
+
+People who are not familiar with GO Enrichment Analysis and the Structure of the Gene Ontology may experiment some confusion with terms such as "GOIDs (=GOTerms)", "enriched GOTerms" or "GOLevels". This section shows a very simple example to illustrate these concepts. More information can be found in @Dessimoz2017.
+
+### Gene lists
+
+A _gene list_ is a vector of characters that contains the IDs of genes that have been selected according some criteria, for instance genes expressing differently between two biological conditions or genes known to be associated with a certain disease.
+
+The package contains several example gen lists.
+
+```{r}
+library(equivStandardTest)
+data("kidneyGeneLists")
+geneList1 <-kidneyGeneLists[[1]]
+head(geneList1)
+sapply(kidneyGeneLists, length)
+```
+
+### Gene ontology annotations
+
+People working with genes needs to have information about what they do. This is known as "annotations". The standard annotations database (not the only one, but the most well known, and most used) is the _Gene Ontology_. Its name comes from the fact that it is not a standard relational database but an _ontology_ which means that it is hierarchichaly organized from most general to most specific annotations. Strictly speaking the Gene Ontology is formed by three (sub)ontologies: Yhe BP (Biological Process) ontology, the CC (Cellular component) ontology and the MF (Molecular Function) ontology.
+
+Annotating a gene means associating it with a series of records in this ontology (known as "GOTerms" whose identifiers are known as "GOIDs"). Every time a gene is associated with a GOTerm it is automatically associated with its "ancestors" i.e. more general terms in the same ontology connected with that GO Term.
+
+While it is not straightforward to obtain GO annotations for each gene in a gene list, many packages have functions to facilitate this. For instance the `GOTerms` function in the `goProfiles` package.  This can also be done very easily by directly querying the annotation package.
+
+Notice that there are two type of annotations for a gene. The "most specific" are the direct annotations by which the gene is described. For example the name and the associated GOTerms for the first gene in the first gene list can be retrieved as follows:
+
+```{r}
+library(org.Hs.eg.db)
+shortList <- geneList1[1:3]
+(select(org.Hs.eg.db, shortList,"GENENAME"))
+(listOfGOTerms1<-  GOTermsList(shortList, "BP", orgPkg = "org.Hs.eg.db"))
+(select(GO.db, unlist(listOfGOTerms1), "TERM"))
+```
+It can be seen, even with  a low knowledge of Biology, how some of the GOTerms description match the name of the gene.
+
+Alternatively, the GOTerms can be extracted using standard database queries
+```{r}
+(dfOfGOTerms<- select(org.Hs.eg.db, shortList,"GO"))
+(listOfGOTerms2 <- dfOfGOTerms %>%
+  dplyr::filter(dfOfGOTerms$ONTOLOGY=="BP") %>%
+  dplyr::select ("GO"))
+```
+
+The GOTerms retrieved for this gene are the most specific terms. Due to the hierarchichal structur of the GO the gene is also annotated by terms in higher positions of the ontology related with these "most specific" terms.
+
+More general terms associated with specific annotations are called "ancestors". Again these can be obtained using a function in `goProfiles` or by directly querying the annotation package with the `select` command.
+
+Using `goProfiles GOTermsList and getAncestorsLst` functions yields the following results
+
+```{r}
+ancestorsList1 <- unique(unlist(getAncestorsLst(listOfGOTerms1, onto="BP")))
+length(ancestorsList1)
+```
+
+Using a direct `select` command on the annotations package to a different table ("GOALL" instead of "GO")
+
+```{r}
+# Making a direct query
+dfOfGOTerms2<- select(org.Hs.eg.db, shortList,"GOALL")
+listOfGOTerms2 <- dfOfGOTerms2 %>%
+  dplyr::filter(dfOfGOTerms2$ONTOLOGYALL=="BP") %>%
+  dplyr::select ("GOALL")
+length(unique(listOfGOTerms2[,1]))
+```
+__Notice that the results are similar though not the same__
+
+```{r}
+length(ancestorsList1)
+length(unique(listOfGOTerms2[,1]))
+setdiff(ancestorsList1, listOfGOTerms2[,1])
+```
+
+It is clear that, even for a short gene list, the number of associated GOTerms is very high especially if one considers general and specific terms.
+
+This can be seen by considering the "induced GO graphs"
+
+```{r eval=FALSE}
+library(GOstats)
+graphBP1<-makeGOGraph(shortList,"BP", chip="hgu133plus2.db")
+length(nodes(graphBP1))
+```
+
+```{r plotGOGraph1, out.width = '70%', eval=FALSE}
+plot(graphBP1, main=paste(paste(shortList, collapse = ", "), "BP Ontology"))
+```
+
+<!-- Notice that _this graph has been produced using only three genes but contains 212 nodes, precisely all that have been obtained querying the database for all GO Terms associated with the short gene list_. -->
+
+### GO levels
+
+Because the GO is organized as a directed graph we can introduce the concept of _GO level_.
+GO levels represent the set of nodes found at the same distance (in term of graph paths) of the root node. That is, we say that a GO term (a node in the graph) is at the i-th GO level if the shortest path from this node to the top node has $i$ nodes including that top node.
+
+The graph figure of the previous example highlights this concept very well because, due to the layout used, all nodes at the same level appear aligned.
+
+The concept of GO level is central when using the `goProfiles` approach although there is no universal agreement about if it can be considered equivalent to specialization. This is so because for certain terms, or paths level 5 may be the most specific one whilst for others there may still be many deeper levels.
+
+Nodes at a given level of a given ontology can be recovered using function `goProfiles::getGOLevel`.
+
+```{r GOLevels}
+getGOLevel(2, onto="CC")
+getGOLevel(1, onto="CC")
+length(getGOLevel(3, onto="CC"))
+```
+
+### A simple example
+
+This simple example illustrates the difference between tabulating enriched gene lists vs all terms at a given GO level ("unrestricted" mode in function `crossTabGOIDs`) vs doing it with only terms that are associated with genes in at least one of the lists ("Restricted" mode in function `crossTabGOIDs`).
+
+Assume the selected GO level (level "XX" of onto "YY") is formed by all capital letters
+```{r}
+levelXXontoYYAll <- LETTERS
+length(levelXXontoYYAll)
+```
+And assume that, given two lists "l1" and "l2" (not shown) their corresponding GO annotations in that ontologhy are:
+
+```{r}
+annots1inYY <- union(LETTERS[1:10], letters[11:20])
+annots2inYY <- union(LETTERS[6:15], letters[16:25])
+annots1AND2 <- union(annots1inYY,annots2inYY)
+```
+Notice that some annotations are common to `levelXXontoYYAll` but others are not because they belong to different levels.
+
+```{r}
+levelXXcommonTo1or2 <- levelXXontoYYAll[levelXXontoYYAll %in% annots1AND2]
+length(levelXXcommonTo1or2)
+```
+
+Now assume we do some enrichment analysis on lists 1 and 2 and obtain towo lists of enriched GO Terms
+
+```{r}
+enriched1 <- annots1inYY[c(7:10,16:20)]
+enriched2 <- annots2inYY[c(3:7,16:20)]
+```
+
+We can now do two types of cross tabulations:
+
+__Unrestricted__
+
+Check which of the enriched terms appears in both lists, only one or none in level XX
+
+```{r}
+levelXXannotsIn1 <- levelXXontoYYAll %in% enriched1
+levelXXannotsIn2 <- levelXXontoYYAll %in% enriched2
+table(levelXXannotsIn1, levelXXannotsIn2)
+```
+
+__Restricted__
+
+```{r}
+levelXXcommonAnnotsIn1 <- levelXXcommonTo1or2 %in% enriched1
+levelXXcommonAnnotsIn2 <- levelXXcommonTo1or2 %in% enriched2
+table(levelXXcommonAnnotsIn1, levelXXcommonAnnotsIn2)
+```
+
+Notice that this correspond to the two ways of using function `crossTabGOIDs` (type `? crossTabGOIDs` for more information).
+
+## Stability of the results
+
+Enrichment analysis is a very active field. There are many methods and different criteria on how to do it. It has been observed that some analysis components such as
+
+- The enrichment algorithm (=method=tool)
+- The gene universe 
+
+may affect the final results. Because there is no clear winner between these comparisons it is good that we are aware of this problem.
+
+### Using different enrichment methods
+
+### Relying on different gene universes
+
+If we change, for  instance the `gene Universe` from all human genes (as in the example above) to "human genes available in arrays hgu133plus2" the results show a slight change
+
+```{r eval=FALSE}
+data(kidneyGeneLists)
+data(kidneyEnrichedGOIDs)
+gl1 <-kidneyGeneLists[[1]]
+gl2 <-kidneyGeneLists[[2]]
+anOnto<- "BP"
+pvalCutoff <- 0.01
+data("hgu133plus2EntrezIDs")
+geneUniverse2<- hgu133plus2EntrezIDs
+enriched1 <- enrichOnto(geneList=gl1, geneUniverse=geneUniverse2,
+                        orgPackage="org.Hs.eg.db", ont=anOnto)
+GOIDs1.2 <- as.character(as.data.frame(enriched1)$ID)
+enriched2 <- enrichOnto(geneList=gl2, geneUniverse=geneUniverse2,
+                        orgPackage="org.Hs.eg.db", ont=anOnto)
+GOIDs2.2 <- as.character(as.data.frame(enriched2)$ID)
+crossTabbedGOIds.2 <- crossTabGOIDs (GO1 = GOIDs1.2, GO2 = GOIDs2.2, onto = anOnto, 
+                                   GOLevel =GOLev, listNames=names4lists)
+show(crossTabbedGOIds.2)
+#                  Enriched_in_IRITD3
+# Enriched_in_ENDAT FALSE TRUE
+#             FALSE   544    1
+#             TRUE      7    6
 ```
 
 
-# Appendices 
 
 ## Preparing the `data` for the examples
 

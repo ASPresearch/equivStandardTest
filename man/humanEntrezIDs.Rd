@@ -4,7 +4,9 @@
 \name{humanEntrezIDs}
 \alias{humanEntrezIDs}
 \title{Entrez Identifiers for all human genes contained in the org.Hs.eg.db package.}
-\format{An object of class \code{character} of length 61521.}
+\format{
+An object of class \code{character} of length 61521.
+}
 \source{
 \url{http://bioconductor.org}
 }

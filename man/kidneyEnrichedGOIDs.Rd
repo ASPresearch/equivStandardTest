@@ -4,7 +4,9 @@
 \name{kidneyEnrichedGOIDs}
 \alias{kidneyEnrichedGOIDs}
 \title{GOTerms identifiers obtained from an enrichment analysis performed on kidney Gene lists}
-\format{An object of class \code{list} of length 5.}
+\format{
+An object of class \code{list} of length 5.
+}
 \source{
 \url{https://www.ualberta.ca/medicine/institutes-centres-groups/atagc/research/gene-lists}
 }

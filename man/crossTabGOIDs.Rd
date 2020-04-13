@@ -4,7 +4,17 @@
 \alias{crossTabGOIDs}
 \title{crossTabGOIDs}
 \usage{
-crossTabGOIDs(GO1, GO2, onto, GOLevel, listNames = NULL)
+crossTabGOIDs(
+  GO1,
+  GO2,
+  onto,
+  GOLevel,
+  listNames = NULL,
+  geneList1 = NULL,
+  geneList2 = NULL,
+  orgPackage = NULL,
+  restricted = FALSE
+)
 }
 \arguments{
 \item{GO1}{character vector containing a FIRST list of GO identifiers}
@@ -14,6 +24,12 @@ crossTabGOIDs(GO1, GO2, onto, GOLevel, listNames = NULL)
 \item{onto}{string describing the ontology. Belongs to c('BP', 'MF', 'CC', 'ANY')}
 
 \item{listNames}{character vector with names of the genelists that generated the enriched GOIDs}
+
+\item{geneList1}{character vector containing a FIRST gene list of entrez IDs}
+
+\item{geneList2}{character vector containing a SECOND gene list of entrez IDs}
+
+\item{orgPackage}{A string wih the name of the annotation package}
 
 \item{GOLev}{An integer}
 }
@@ -27,7 +43,16 @@ The lists are intended to have been obtained from enrichment analyses performed 
  GOIDs2 <-kidneyEnrichedGOIDs[[2]]
  names4lists<- names(kidneyEnrichedGOIDs)[1:2]
  anOnto <- 'BP'
- GOLev<- 3
- crossTabbedGOIds <- crossTabGOIDs (GO1 = GOIDs1, GO2 = GOIDs2, onto = anOnto, 
- GOLevel =GOLev, listNames=names4lists)
+ GOLev <- 3
+ gl1 <- kidneyGeneLists[[1]]
+ gl2 <- kidneyGeneLists[[2]]
+ orgPkg ='org.Hs.eg.db'
+ restrictTab <- TRUE
+ crossTabbedGOIdsRestricted <- crossTabGOIDs (GO1 = GOIDs1, GO2 = GOIDs2, onto = anOnto, 
+ GOLevel =GOLev, listNames=names4lists, geneList1 = gl1, geneList2 = gl2, orgPackage =orgPkg, restricted = restrictTab)
+ show(crossTabbedGOIdsRestricted)
+ restrictTab <- FALSE
+ crossTabbedGOIdsUnrestricted <- crossTabGOIDs (GO1 = GOIDs1, GO2 = GOIDs2, onto = anOnto, 
+ GOLevel =GOLev, listNames=names4lists, geneList1 = gl1, geneList2 = gl2, orgPackage =orgPkg, restricted = restrictTab)
+ show(crossTabbedGOIdsUnrestricted)
 }
