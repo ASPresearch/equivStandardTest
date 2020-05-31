@@ -183,7 +183,7 @@ crossTabGOIDs <- function (GO1, GO2, onto, GOLevel, listNames=NULL,
 #'@export
 stdTest4GOIDs <- function (GO1, GO2, onto, GOLevel, listNames=NULL)
 {
-  crossTabbedGOIds <- crossTabGOIDs (GO1 = GOIDs1, GO2 = GOIDs2, onto = anOnto, 
+  crossTabbedGOIds <- crossTabGOIDs (GO1 = GOIDs1, GO2 = GOIDs2, onto = onto, 
                                      GOLevel =GOLev, listNames=names4lists, restricted=FALSE)
   fisher.test (crossTabbedGOIds, alt="g")
 }
@@ -227,16 +227,14 @@ stdTest4GOIDs <- function (GO1, GO2, onto, GOLevel, listNames=NULL)
 crossTabGOIDs4GeneLists <- function (genelist1, genelist2, geneUniverse, orgPackg, onto, GOLevel, restricted =FALSE,
                                pAdjustMeth="BH", pvalCutoff=0.01, qvalCutoff=0.05)
 {
-  enriched1 <- clusterProfiler::enrichGO(gene=genelist1, universe=geneUniverse, OrgDb=orgPackg, ont=anOnto, pvalueCutoff=pvalCutoff)
+  enriched1 <- clusterProfiler::enrichGO(gene=genelist1, universe=geneUniverse, OrgDb=orgPackg, ont=onto, pvalueCutoff=pvalCutoff)
   GOIDs1 <- as.character(as.data.frame(enriched1)$ID)
-  enriched2 <- clusterProfiler::enrichGO(gene=genelist2, universe=geneUniverse, OrgDb=orgPackg, ont=anOnto, pvalueCutoff=pvalCutoff)
+  enriched2 <- clusterProfiler::enrichGO(gene=genelist2, universe=geneUniverse, OrgDb=orgPackg, ont=onto, pvalueCutoff=pvalCutoff)
   GOIDs2 <- as.character(as.data.frame(enriched2)$ID)
-  crossTabGOIDs4GeneLists <- crossTabGOIDs (GO1 = GOIDs1, GO2 = GOIDs2, onto = anOnto, GOLevel =GOLevel,
+  crossTabGOIDs4GeneLists <- crossTabGOIDs (GO1 = GOIDs1, GO2 = GOIDs2, onto = onto, GOLevel =GOLevel,
                                             geneList1=genelist1, geneList2=genelist2, orgPackage = orgPackg, 
                                             restricted = restricted)
 }
-
-
 
 #' StandardTest4GeneLists
 #'
@@ -282,7 +280,7 @@ stdTest4GeneLists <- function (genelist1, genelist2, geneUniverse, orgPackg, ont
                           orgPackage = orgPackg, onto = onto, 
                           pvalCutoff=pvalCutoff, qvalCutoff=qvalCutoff, pAdjustMeth=pAdjustMeth)
   GOIDs2 <- as.character(as.data.frame(enriched2)$ID)
-  crossTabbedGOIDs4GeneLists <- crossTabGOIDs (GO1 = GOIDs1, GO2 = GOIDs2, onto = anOnto, GOLevel =GOLevel,
+  crossTabbedGOIDs4GeneLists <- crossTabGOIDs (GO1 = GOIDs1, GO2 = GOIDs2, onto = onto, GOLevel =GOLevel,
                                             geneList1=genelist1, geneList2=genelist2, orgPackage = orgPackg, 
                                             restricted = restricted)
   fisher.test (crossTabbedGOIDs4GeneLists, alt="g")

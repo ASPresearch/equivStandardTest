@@ -11,9 +11,10 @@ Description: Implements a standard test of equivalence as described in (Sanchez 
 Depends:
     R (>= 3.0.0),
     devtools,
+    GO.db,
+    org.Hs.eg.db,
     goProfiles,
-    clusterProfiler,
-    org.Hs.eg.db
+    clusterProfiler
 biocViews: clusterProfiler,goProfiles
 License: GPL 2
 Encoding: UTF-8
