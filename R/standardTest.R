@@ -82,7 +82,7 @@ crossTabGOIDsUnrestricted <- function (GO1, GO2, onto, GOLevel, listNames=NULL)
 #' @param geneList1 character vector containing a FIRST gene list of entrez IDs
 #' @param geneList2 character vector containing a SECOND gene list of entrez IDs
 #' @param orgPackage A string wih the name of the annotation package
-#' @restricted Boolean variable to decide how tabulation is performed. 
+#' @param restricted Boolean variable to decide how tabulation is performed. 
 #' @examples
 #'  data(kidneyGeneLists)
 #'  GOLev <- 3
@@ -120,7 +120,7 @@ GOIDsInLevel <- function (GOLev, onto, geneList1=NULL, geneList2 =NULL, orgPacka
 #' @param geneList1 character vector containing a FIRST gene list of entrez IDs
 #' @param geneList2 character vector containing a SECOND gene list of entrez IDs
 #' @param orgPackage A string wih the name of the annotation package
-#' @restricted Boolean variable to decide how tabulation is performed. 
+#' @param restricted Boolean variable to decide how tabulation is performed. 
 #' Unrestricted tabulation crosses _all_ GO Terms located at the level indicated by `GOLev` with the two GOIDs lists 
 #' Restricted tabulation crosses only terms from the selected GO level that are _common to ancestor terms of either list_. 
 #' That is, if one term in the selected GO level is not an ancestor of at least one of the gene list most specific GO terms 
@@ -198,7 +198,7 @@ stdTest4GOIDs <- function (GO1, GO2, onto, GOLevel, listNames=NULL)
 #' @param orgPackage A string wih the name of the annotation package
 #' @param onto string describing the ontology. Belongs to c('BP', 'MF', 'CC', 'ANY')
 #' @param GOLev An integer
-#' @restricted Boolean variable to decide how tabulation of GOIDs is performed. 
+#' @param restricted Boolean variable to decide how tabulation of GOIDs is performed. 
 #' Unrestricted tabulation crosses _all_ GO Terms located at the level indicated by `GOLev` with the two GOIDs lists 
 #' Restricted tabulation crosses only terms from the selected GO level that are _common to ancestor terms of either list_. 
 #' That is, if one term in the selected GO level is not an ancestor of at least one of the gene list most specific GO terms 
@@ -246,7 +246,7 @@ crossTabGOIDs4GeneLists <- function (genelist1, genelist2, geneUniverse, orgPack
 #' @param orgPackage A string wih the name of the annotation package
 #' @param onto string describing the ontology. Belongs to c('BP', 'MF', 'CC', 'ANY')
 #' @param GOLev An integer
-#' @restricted Boolean variable to decide how tabulation is performed. 
+#' @param restricted Boolean variable to decide how tabulation is performed. 
 #' Unrestricted tabulation crosses _all_ GO Terms located at the level indicated by `GOLev` with the two GOIDs lists 
 #' Restricted tabulation crosses only terms from the selected GO level that are _common to ancestor terms of either list_. 
 #' That is, if one term in the selected GO level is not an ancestor of at least one of the gene list most specific GO terms 
